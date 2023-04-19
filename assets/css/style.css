@@ -1,0 +1,545 @@
+/** Main **/
+
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    overflow-x: hidden;
+}
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+a, a:visited, a:focus {
+    text-decoration: none;
+    color: #484848;
+    font-weight: bold;
+}
+
+a:hover {
+    color: #6c6c6c;
+}
+
+hr {
+    border: 0;
+    border-top: 1px solid #c0c0c0;
+}
+
+dl {
+    width: 100%;
+    overflow: hidden;
+    background: #e5e5e5;
+    padding: 5px;
+    margin: 0
+}
+dt {
+    float: left;
+    width: 50%;
+    padding: 0;
+    margin: 5px 0
+}
+dd {
+    float: left;
+    width: 50%;
+    padding: 0;
+    margin: 5px 0
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.btn {
+    color: #333;
+    font-weight: 400;
+    line-height: 1.5;
+    text-align: center;
+    text-decoration: none;
+    vertical-align: middle;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+    padding: 0.6rem 0.8rem;
+    font-size: 1rem;
+    border-radius: 0.25rem;
+    border: none;
+}
+
+.btn:hover, .btn:focus, .btn:active {
+    font-weight: normal;
+}
+
+.btn.btn-light {
+    background-color: #cecece;
+    border-color: #cecece;
+}
+
+.btn.btn-light:hover {
+    background-color: #ababab;
+    color: #000
+}
+
+.btn.btn-dark {
+    color: #efefef;
+    background-color: #333;
+    border-color: #333;
+}
+
+.btn.btn-dark[disabled], .btn.btn-dark[disabled]:hover {
+    cursor: default;
+    color: #f6f6f6;
+    background-color: #7a7a7a;
+    border-color: #7a7a7a;
+}
+
+.btn.btn-dark:hover {
+    background-color: #595959;
+}
+
+.form-input {
+    display: block;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.975rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #212529;
+    background-color: #fff;
+    border: 1px solid #ced4da;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    border-radius: 0.25rem;
+}
+
+.d-block {
+    display: block
+}
+
+.d-none {
+    display: none
+}
+
+.w-100 {
+    width: 100%;
+}
+
+.mt-2 {
+    margin-top: 2rem
+}
+
+.text-muted {
+    color: #6c6c6c
+}
+
+.pull-left {
+    float: left
+}
+
+.pull-right {
+    float: right
+}
+
+.clearfix {
+    clear: both
+}
+
+/** Header **/
+
+.header {
+    width: 100%;
+    background-color: #333;
+    color: #fff;
+    padding: 20px 40px;
+    display: flex;
+    align-content: space-around;
+    align-items: center;
+    gap: 2rem;
+}
+
+.header h1 {
+    width: auto;
+    display: inline-block;
+}
+
+.header a h1 {
+    color: #c2c2c2
+}
+
+.header .menu-buttons {
+    display: inline-block;
+    margin-left: 1rem;
+}
+
+.heading {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+/** Product **/
+
+.product-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.product-card {
+    width: 100%;
+    margin: 0 auto;
+    padding: 0;
+    box-sizing: border-box;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    z-index: 10;
+}
+
+.product-card dl {
+    margin-top: 1rem
+}
+
+.product-card.on-sale-badge {
+    z-index: unset;
+}
+
+.product-card img {
+    position: relative;
+    width: 100%;
+    max-height: 200px;
+    object-fit: cover;
+    border-radius: 4px;
+    z-index: -1;
+}
+
+.product-card h3 {
+    margin-top: 10px;
+    margin-bottom: 5px;
+}
+
+.product-card p {
+    color: #777;
+    font-size: 14px;
+    margin: 0;
+}
+
+/**
+ * Product Form Modal
+ */
+
+.modal {
+    display: none;
+    /*visibility: hidden;*/
+    position: absolute;
+    z-index: 9999;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    padding-bottom: 3em
+}
+
+.modal .icon {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    vertical-align: middle;
+    fill: currentcolor;
+}
+
+.icon-check {
+    width: 32px
+}
+
+.icon-close {
+    width: 16px;
+    float: right;
+}
+
+.modal .modal-close {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 1em;
+    color: #aaa;
+    background: none;
+    border: 0;
+}
+
+.modal.is-visible {
+    visibility: visible;
+}
+
+.modal-overlay {
+    position: fixed;
+    z-index: 10;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: hsla(0, 0%, 0%, 0.5);
+}
+
+
+.modal-wrapper {
+    position: absolute;
+    z-index: 9999;
+    top: 4em;
+    left: 45%;
+    width: 45em;
+    margin-left: -16em;
+    background-color: #fff;
+    box-shadow: 0 0 1.5em hsla(0, 0%, 0%, 0.35);
+
+}
+
+.modal-header,
+.modal-content {
+    padding: 1.5em;
+}
+
+.modal-header {
+    position: relative;
+    background-color: #fff;
+    box-shadow: 0 1px 2px hsla(0, 0%, 0%, 0.06);
+    border-bottom: 1px solid #e8e8e8;
+}
+
+.modal-content .form-input {
+    width: calc(100% - 2rem);
+}
+
+.modal-close {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 1em;
+    color: #aaa;
+    background: none;
+    border: 0;
+}
+
+.modal-close:hover {
+    color: #777;
+}
+
+.modal-heading {
+    font-size: 1.125em;
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.modal-content > *:first-child {
+    margin-top: 0;
+}
+
+.modal-content > *:last-child {
+    margin-bottom: 0;
+}
+
+.input-group {
+    margin-bottom: 1rem
+}
+
+.input-group .form-input, .input-group .img-input {
+    margin-top: 0.3rem
+}
+
+.input-groups-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    grid-gap: 0;
+    margin-bottom: 1em
+}
+
+.input-groups-grid .form-input {
+    width: 85%;
+}
+
+span.req:after, i.req:after {
+    font-size: 14px;
+    color: red;
+    content: "*";
+}
+
+.product-img {
+    width: 350px;
+    height: 200px;
+}
+
+.feature-btn {
+    width: 20px;
+    height: 26px;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 10px;
+    margin-top: 15px;
+}
+
+@media only screen and (max-width: 991px) {
+    .modal-wrapper {
+        left: 0;
+        width: 80%;
+        margin-left: 10.5%;
+    }
+
+    .product-img {
+        width: 100%;
+    }
+
+    .toast {
+        left: 30px
+    }
+}
+
+.toast {
+    display: none;
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    border-radius: 12px;
+    background: #fff;
+    padding: 20px 35px 20px 25px;
+    box-shadow: 0 6px 20px -5px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transform: translateX(calc(100% + 30px));
+    transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.35);
+}
+
+.toast.active {
+    display: block;
+    transform: translateX(0%);
+}
+
+.toast .toast-content {
+    display: flex;
+    align-items: center;
+}
+
+.toast-content .check {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 35px;
+    min-width: 35px;
+    background-color: #4070f4;
+    color: #fff;
+    font-size: 20px;
+    border-radius: 50%;
+}
+
+.toast-content .message {
+    display: flex;
+    flex-direction: column;
+    margin: 0 20px;
+}
+
+.message .text {
+    font-size: 16px;
+    font-weight: 400;
+    color: #666666;
+}
+
+.message .text.text-1 {
+    font-weight: 600;
+    color: #333;
+}
+
+.toast .close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    padding: 5px;
+    cursor: pointer;
+    opacity: 0.7;
+}
+
+.toast .close:hover {
+    opacity: 1;
+}
+
+.toast .progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    width: 100%;
+
+}
+
+.toast .progress:before {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    height: 100%;
+    width: 100%;
+    background-color: #333;
+}
+
+.progress.active:before {
+    animation: progress 5s linear forwards;
+}
+
+@keyframes progress {
+    100% {
+        right: 100%;
+    }
+}
+
+.toast button {
+    padding: 12px 20px;
+    font-size: 20px;
+    outline: none;
+    border: none;
+    background-color: #4070f4;
+    color: #fff;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.toast button:hover {
+    background-color: #0e4bf1;
+}
+
+.toast.active ~ button {
+    pointer-events: none;
+}
+
+.alert.danger {
+    background: rgba(255, 0, 0, .7);
+    padding: 12px;
+    color: #fff;
+    line-height: 20px;
+    border-radius: 8px;
+}
+
+.on-sale-badge {
+    background: url(../images/on_sale_badge.png) top left no-repeat;
+}
+
+.product-card-body {
+    position: relative;
+    padding: 1rem;
+}
+
+.product-price {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 1rem 0;
+}
+
+.product-price .product-sale-price {
+    font-size: 14px;
+    color: #606060;
+    text-decoration: line-through;
+}
