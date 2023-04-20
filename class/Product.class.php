@@ -1,9 +1,8 @@
 <?php
 
-use JetBrains\PhpStorm\Pure;
-
 class Product
 {
+    // Initial properties the same as database table plus features array
     private int $id;
     private string $title, $description, $theme_img_file, $theme_img_ext, $theme_img_mime_type;
     private float $price;
@@ -12,22 +11,19 @@ class Product
     private array $features;
     private DateTime $creation_date;
 
-    function __construct(?int $id = null, string $title = null, string $description = null, float $price = null, ?float $sale_price = null, bool $on_sale = null, ?string $theme_img_file = null, ?string $theme_img_ext = null, ?string $theme_img_mime_type = null, ?DateTime $creation_date = null, array $features = []) {
-        //optional fields for insert
+    function __construct(?int $id, string $title, string $description, float $price, ?float $sale_price = null, bool $on_sale = null, ?string $theme_img_file = null, ?string $theme_img_ext = null, ?string $theme_img_mime_type = null, ?DateTime $creation_date = null, array $features = []) {
+        // Optional fields for insert
         if(isset($id))
             $this->id = $id;
         if(isset($creation_date))
             $this->creation_date = $creation_date;
 
-        //required fields
-        if(isset($title))
-            $this->title = $title;
-        if(isset($description))
-            $this->description = $description;
-        if(isset($price))
-            $this->price = $price;
+        // Required fields
+        $this->title = $title;
+        $this->description = $description;
+        $this->price = $price;
 
-        //optional fields
+        // Optional fields
         if(isset($sale_price))
             $this->sale_price = $sale_price;
         $this->on_sale = $on_sale;
@@ -126,7 +122,7 @@ class Product
     /**
      * @return string
      */
-    #[Pure] public function getThemeImgURL(): string {
+    public function getThemeImgURL(): string {
         return Core::REQUEST_PATH . "product" . DIRECTORY_SEPARATOR . "theme_img.php?id=" . $this->id;
     }
 }
