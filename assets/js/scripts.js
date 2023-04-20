@@ -2,9 +2,9 @@ let request;
 const REQUEST_FAIL = 500,
     REQUEST_SUCCESS = 200;
 
-//handles request from forms by ajax
+// Handles request from forms by ajax
 function productRequestHandler(formElm) {
-    let method = formElm.attr("method") === "post" ? "post" : "get"; //determines the request method
+    let method = formElm.attr("method") === "post" ? "post" : "get"; // Determines the request method
 
     formElm.submit(function(event) {
         event.preventDefault();
@@ -19,6 +19,8 @@ function productRequestHandler(formElm) {
 
         if(event.originalEvent !== undefined)
             formData.append(event.originalEvent.submitter.getAttribute('name'), event.originalEvent.submitter.value);
+
+        // Disabling all inputs until response arrives
         $inputs.prop("disabled", true);
 
         request = $.ajax({
@@ -36,13 +38,14 @@ function productRequestHandler(formElm) {
             if(response.code === REQUEST_FAIL)
                 $('.response-error').html('<div class="alert danger">' + response['msg'] + '</div>');
             else if(response.code === REQUEST_SUCCESS) {
-                //adding the product after it has been added successfully
+                // Adding the product after it has been added successfully
+
                 let form = $('.product-form');
                 let productImgElm = form.find('.product-img');
                 let productImg = productImgElm.attr('src');
 
-                let title = $('#product-title')[0].value; //better replacement
-                let description = $('#product-description')[0].value; //better replacement
+                let title = $('#product-title')[0].value; // Better replacement than .val() by performance
+                let description = $('#product-description')[0].value; // Better replacement than .val() by performance
                 let price = $('#product-price').val();
                 let salePrice = $('#sale-price').val();
                 let onSale = $('#product-on-sale').is(':checked') ? ' on-sale-badge' : '';
@@ -65,59 +68,66 @@ function productRequestHandler(formElm) {
                         featuresStr = '<dl>' + featuresStr + '</dl>';
                 }
 
-                $(`<li class="product-card${onSale}">
-                <div class="product-card-body">
-                    <img src="${productImg}" alt="${title}">
-                    <h3>${title}</h3>
-                    <div class="product-price">
-                        <span class="product-price-symbol">$</span>
-                        <span class="product-price-value">${price}</span>
-                        <span class="product-sale-price">$${salePrice}</span>
+                // Adding the inserted product card HTML to the products list
+                $(`<li class="product-card">
+                <div class="product-card-container${onSale}">
+                    <div class="product-card-body">
+                        <img src="${productImg}" alt="${title}">
+                        <h3>${title}</h3>
+                        <div class="product-price">
+                            <span class="product-price-symbol">$</span>
+                            <span class="product-price-value">${price}</span>
+                            <span class="product-sale-price">$${salePrice}</span>
+                        </div>
+                        <p>${description}</p>
+                        ${featuresStr}
                     </div>
-                    <p>${description}</p>
-                    ${featuresStr}
                 </div>
             </li>`).prependTo('.product-list');
 
                 $('.modal').fadeOut();
                 let toast = $('.toast');
 
-                //updates the response message in toast
+                // Updates the response message in toast
                 toast.find('.message .toast-msg').html(response['msg']);
 
-                //enables toast
+                // Enables toast
                 toast.addClass('active');
                 toast.find('.progress').addClass('active');
+
+                toast.find('.toast-close').on('click', function() {
+                    toast.removeClass('active');
+                });
 
                 setTimeout(function() {
                     toast.removeClass('active');
                     toast.find('.progress').removeClass('active');
-                }, 5000);
+                }, 35000);
 
-                //clears form data after successful response
+                // Clears form data after successful response
 
-                //clear inputs
+                // Clear inputs
                 $form.find('input,textarea').val("");
                 $form.find('input[type="checkbox"]').prop('checked', false);
 
-                //clears previous responses
+                // Clears previous responses
                 $('.response-error').html("");
 
-                //clears clone-block behaviour
+                // Clears clone-block behaviour
                 $('.clone-block').first().nextAll('.clone-block').remove();
                 $('.clone-block .remove-btn').attr("disabled", true);
 
-                //sets product image preview to default
+                // Sets product image preview to default
                 productImgElm.attr("src", "assets/images/products/placeholder.jpg");
             }
         });
 
         request.fail(function(jqXHR, textStatus, errorThrown) {
+            // Response failed. Time to debug
             console.log(jqXHR);
             console.log(textStatus);
             console.log(errorThrown);
             console.log(jqXHR.responseText);
-            // fetchResponse(jqXHR.responseText, elm, formElm);
         });
 
         request.always(function(e) {
@@ -127,7 +137,7 @@ function productRequestHandler(formElm) {
     });
 }
 
-//inits the clone block remove button events
+// Inits the clone block remove button events
 function initCloneRemoveEvent(cloneBlockElm) {
     let removeCloneBtn = cloneBlockElm.find('.remove-btn');
 
@@ -138,10 +148,10 @@ function initCloneRemoveEvent(cloneBlockElm) {
             $(this).remove();
             let cloneBlock = $('.clone-block');
             if(cloneBlock.length === 1) {
-                //one clone block left. It's time to disable its removal option
+                // One clone block left. It's time to disable its removal option
                 let lastCloneRemove = cloneBlock.find('.remove-btn');
-                lastCloneRemove.attr("disabled", true); //disabling the button
-                lastCloneRemove.off(); //removing current events to let new ones be created
+                lastCloneRemove.attr("disabled", true); // Disabling the button
+                lastCloneRemove.off(); // Removing current events to let new ones be created
             }
         } );
     });
@@ -155,7 +165,7 @@ $(document).ready(function() {
 
         modal.fadeIn(200);
 
-        //closing the modal on icon click or anywhere else out of the modal by overlay
+        // Closing the modal on icon click or anywhere else out of the modal by overlay
         $('.modal-close,.modal-overlay').on('click', function() {
             modal.fadeOut(200);
         })

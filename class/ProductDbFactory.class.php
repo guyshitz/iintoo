@@ -12,17 +12,23 @@ class ProductDbFactory
     }
 
     /**
+     *
+     * Create Product instance by row data array
+     *
      * @param array $row
      * @param bool $init_features
      * @return Product instance after properties initialization
      */
     public function createProductByRowData(array $row, bool $init_features = true): Product {
+        // Converting date format to PHP DateTime object
         $row['creation_date'] = DateTime::createFromFormat("Y-m-d H:i:s", $row['creation_date']);
+
         $values = array_values($row);
 
         if($init_features) {
+            // Inits product feature from another table using the primary key
             $features = [];
-            $features_data = $this->db->exec("SELECT `feature_name`, `feature_value` FROM `io_product_features` WHERE `product_id` = ?", [$row['ID']]);
+            $features_data = $this->db->query("SELECT `feature_name`, `feature_value` FROM `io_product_features` WHERE `product_id` = ?", [$row['ID']]);
 
             foreach($features_data as $f)
                 $features[$f['feature_name']] = $f['feature_value'];
@@ -34,27 +40,33 @@ class ProductDbFactory
     }
 
     /**
+     *
+     * Select all Product table records
+     *
      * @return array of Product object
      */
-    public function selectAll(bool $include_features = true): array {
+    public function selectAll(int $offset, int $limit = Core::PRODUCTS_PER_PAGE, bool $include_features = true): array {
         $results = [];
-        //query columns specification is important for the unpacking to come next
-        $data = $this->db->exec("SELECT `ID`, `product_title`, `product_description`, `product_price`, `sale_price`, `on_sale`, `theme_img_file`, `theme_img_ext`, `theme_img_mimetype`, `creation_date` FROM `io_products` ORDER BY `creation_date` DESC");
+        // Query columns specification is important for the unpacking to come next
+        $data = $this->db->query("SELECT `ID`, `product_title`, `product_description`, `product_price`, `sale_price`, `on_sale`, `theme_img_file`, `theme_img_ext`, `theme_img_mimetype`, `creation_date` FROM `io_products` ORDER BY `creation_date` DESC LIMIT $offset, $limit");
 
-        foreach($data as $row)
-            $results[] = $this->createProductByRowData($row, $include_features);
+        if(is_array($data) && $data)
+            foreach($data as $row)
+                $results[] = $this->createProductByRowData($row, $include_features);
 
         return $results;
     }
 
     /**
+     *
      * Returns a new instance of Product in case the record has been fond. Otherwise, returns false.
+     *
      * @param int $product_id
      * @param bool $include_features
      * @return Product|false
      */
-    public function selectByID(int $product_id, bool $include_features = true): Product|false {
-        $data = $this->db->exec("SELECT `ID`, `product_title`, `product_description`, `product_price`, `sale_price`, `on_sale`, `theme_img_file`, `theme_img_ext`, `theme_img_mimetype`, `creation_date` FROM `io_products` WHERE `ID` = ?", [$product_id]);
+    public function selectByID(int $product_id, bool $include_features = true) {
+        $data = $this->db->query("SELECT `ID`, `product_title`, `product_description`, `product_price`, `sale_price`, `on_sale`, `theme_img_file`, `theme_img_ext`, `theme_img_mimetype`, `creation_date` FROM `io_products` WHERE `ID` = ?", [$product_id]);
         foreach($data as $row)
             return $this->createProductByRowData($row, $include_features);
 
@@ -69,10 +81,11 @@ class ProductDbFactory
         $db_conn = $this->db->getConn();
 
         try {
-            $db_conn->begin_transaction();
+            // Begins mysql transaction to keep the multi table inserting operation safe
+            $db_conn->beginTransaction();
 
-            //inserting product
-            $this->db->exec("INSERT INTO `io_products`(`product_title`, `product_description`, `product_price`, `sale_price`, `on_sale`, `theme_img_file`, `theme_img_ext`, `theme_img_mimetype`, `creation_date`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())", [
+            // Inserting Product
+            $this->db->query("INSERT INTO `io_products`(`product_title`, `product_description`, `product_price`, `sale_price`, `on_sale`, `theme_img_file`, `theme_img_ext`, `theme_img_mimetype`, `creation_date`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())", [
                 $product->getTitle(),
                 $product->getDescription(),
                 $product->getPrice(),
@@ -83,10 +96,10 @@ class ProductDbFactory
                 $product->getThemeImgMimeType()
             ]);
 
-            $last_id = mysqli_insert_id($db_conn);
+            $last_id = $db_conn->lastInsertId();
             $feature_params = [];
 
-            //inserting product features
+            // Inserting Product Features
             if($features = $product->getFeatures()) {
                 foreach($features as $name => $val) {
                     $feature_params[] = $last_id;
@@ -97,21 +110,27 @@ class ProductDbFactory
 
             $features_count = count($feature_params) / 3;
             if($features_count)
-                $this->db->exec("INSERT INTO `io_product_features`(`product_id`, `feature_name`, `feature_value`) VALUES " . rtrim(str_repeat("(?, ?, ?),", $features_count), ","), $feature_params);
+                $this->db->query("INSERT INTO `io_product_features`(`product_id`, `feature_name`, `feature_value`) VALUES " . rtrim(str_repeat("(?, ?, ?),", $features_count), ","), $feature_params);
 
             $db_conn->commit();
         } catch (\Throwable $e) {
-            $db_conn->rollback();
+            // Rolling back the transaction on failure
             //die($e->getMessage());
+            $db_conn->rollback();
             return false;
         }
 
         return true;
     }
 
+    public function count(): int
+    {
+        return (int)$this->db->read("SELECT COUNT(*) FROM `io_products`");
+    }
+
     public function __destruct()
     {
-        //finishes the work with mysql connection
-        $this->db->close();
+        // Finishes the work with mysql connection
+        $this->db->closeConnection();
     }
 }
