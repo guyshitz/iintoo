@@ -1,5 +1,5 @@
 <?php
-$config['db']['host'] = 'localhost';
-$config['db']['username'] = 'root';
-$config['db']['password'] = '';
-$config['db']['db_name'] = 'iintoo';
+$db_config['host'] = 'localhost';
+$db_config['username'] = 'root';
+$db_config['password'] = '';
+$db_config['db_name'] = 'iintoo';

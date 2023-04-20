@@ -4,7 +4,7 @@ Mini shop responsive web page for iintoo assignment. Based on HTML, CSS, Javascr
 
 ## Requirements
 
-- PHP 8.2 or higher
+- PHP 7.4 or higher
 - MySQL
 
 ## Get Started

@@ -17,46 +17,36 @@ if(isset($_POST['title']) && isset($_POST['description']) && isset($_POST['price
     global $core;
     $core = new Core();
 
-    //validation
+    // Request Validation
     $errors = [];
     $title_len = strlen($_POST['title']);
     $desc_len = strlen($_POST['description']);
     $img_uploaded = isset($_FILES['theme_img']['tmp_name']) && !empty($_FILES['theme_img']['tmp_name']);
 
+    // Length Validation
     if($title_len < MIN_TITLE_LENGTH || $title_len > MAX_TITLE_LENGTH)
         $errors[] = "The title's length has to be " . MIN_TITLE_LENGTH ." to " . MAX_TITLE_LENGTH . " chars";
 
     if($desc_len < MIN_DESCRIPTION_LENGTH || $desc_len > MAX_DESCRIPTION_LENGTH)
         $errors[] = "The description's length has to be " . MIN_DESCRIPTION_LENGTH ." to " . MAX_DESCRIPTION_LENGTH . " chars";
 
-    if(!is_numeric($_POST['price']))
-        $errors[] = "The product price must be numeric.";
+    // Type validation
+    if(!is_numeric($_POST['price']) || $_POST['price'] < 0)
+        $errors[] = "The product price must be numeric and positive.";
 
-    if(isset($_POST['sale_price']) && !empty($_POST['sale_price']) && !is_numeric($_POST['sale_price']))
-        $errors[] = "The sale price must be numeric.";
+    if(isset($_POST['sale_price']) && !empty($_POST['sale_price']) && (!is_numeric($_POST['sale_price']) || $_POST['sale_price'] < 0))
+        $errors[] = "The sale price must be numeric and positive.";
 
-    if($img_uploaded) {
-        if(empty($_FILES['theme_img']) || $_FILES['theme_img']['error'] !== 0)
-            $errors[] = "Image upload failed.";
-
-        //ensuring upload image size
-        $size_verification = getimagesize($_FILES['theme_img']['tmp_name']);
-
-        //ensuring upload image file type
-        $pattern = "#^(image/)[^\s\n<]+$#i";
-
-        if(!preg_match($pattern, $size_verification['mime']))
-            $errors[] = "Only image files are allowed for uploading.";
-    }
-
+    // Features validation
     $min_feature_name_len = min(array_map('strlen', $_POST['feature_name']));
     $max_feature_name_len = max(array_map('strlen', $_POST['feature_name']));
+    $feature_name_count = count($_POST['feature_name']);
 
     $min_feature_val_len = min(array_map('strlen', $_POST['feature_value']));
     $max_feature_val_len = max(array_map('strlen', $_POST['feature_value']));
     if((isset($_POST['feature_name']) && !is_array($_POST['feature_name']))
         || (isset($_POST['feature_value']) && !is_array($_POST['feature_value']))
-        || count($_POST['feature_name']) != count($_POST['feature_value'])
+        || $feature_name_count != count($_POST['feature_value'])
         || ($min_feature_name_len > 0 && $min_feature_name_len < MIN_FEATURE_NAME_LENGTH)
         || ($max_feature_name_len > 0 && $max_feature_name_len > MAX_FEATURE_NAME_LENGTH)
         || ($min_feature_val_len > 0 && $min_feature_val_len < MIN_FEATURE_VALUE_LENGTH)
@@ -64,11 +54,29 @@ if(isset($_POST['title']) && isset($_POST['description']) && isset($_POST['price
     )
         $errors[] = "Each feature must have a name of " . MIN_FEATURE_NAME_LENGTH . " to " . MAX_FEATURE_NAME_LENGTH . " chars length, and matching value of " . MIN_FEATURE_VALUE_LENGTH . " to " . MAX_FEATURE_VALUE_LENGTH . " chars length.";
 
+    if($feature_name_count !== count(array_unique($_POST['feature_name'])))
+        $errors[] = "The product feature name must be unique."; // Or not :/ ?
+
+    // Image file validation
+    if($img_uploaded) {
+        if(empty($_FILES['theme_img']) || $_FILES['theme_img']['error'] !== 0)
+            $errors[] = "Image upload failed.";
+
+        // Ensuring upload image size
+        $size_verification = getimagesize($_FILES['theme_img']['tmp_name']);
+
+        // Ensuring upload image file type
+        $pattern = "#^(image/)[^\s\n<]+$#i";
+
+        if(!preg_match($pattern, $size_verification['mime']))
+            $errors[] = "Only image files are allowed for uploading.";
+    }
+
     if(!count($errors)) {
-        //validated and ready for commit
+        // Validated and ready for commit
 
         if($img_uploaded) {
-            //ensuring upload
+            // Ensuring upload
             do {
                 $theme_img_path = Core::PRODUCT_IMG_UPLOAD_DIR . DIRECTORY_SEPARATOR . mt_rand(). ".tmp";
                 $fp = @fopen($theme_img_path, 'x');
@@ -100,7 +108,7 @@ if(isset($_POST['title']) && isset($_POST['description']) && isset($_POST['price
             array_filter(array_combine($_POST['feature_name'], $_POST['feature_value']))
         );
 
-        //inserting the product to database
+        // Inserting the product to database
         $db_factory = new ProductDbFactory();
         if($db_factory->insert($product))
             echo json_encode([
@@ -109,7 +117,7 @@ if(isset($_POST['title']) && isset($_POST['description']) && isset($_POST['price
             ], true);
         else {
             if($img_uploaded)
-                unlink($theme_img_path);
+                unlink($theme_img_path); // Deletes the uploaded image if the insert fails
 
             echo json_encode([
                 "code" => Core::REQUEST_ERROR,
@@ -117,7 +125,7 @@ if(isset($_POST['title']) && isset($_POST['description']) && isset($_POST['price
             ], true);
         }
     }
-    else //printing errors
+    else // Printing errors
         echo json_encode([
         "code" => Core::REQUEST_ERROR,
         "msg" => implode('<br>', $errors)
